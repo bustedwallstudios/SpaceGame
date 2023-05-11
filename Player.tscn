@@ -1,0 +1,52 @@
+[gd_scene load_steps=6 format=3 uid="uid://wjjon1ih65u5"]
+
+[ext_resource type="Script" path="res://script/Player.gd" id="1_xw3nr"]
+[ext_resource type="AudioStream" uid="uid://nu4fs5xuqj0m" path="res://assets/audio/rocketLoop.mp3" id="2_tljfh"]
+[ext_resource type="Material" uid="uid://ftsh5ftsmcxs" path="res://assets/resources/PlayerRocketParticles.tres" id="2_wneyp"]
+[ext_resource type="AudioStream" uid="uid://buhcovy7llhyk" path="res://assets/audio/laserShoot.wav" id="4_kp4u1"]
+[ext_resource type="AudioStream" uid="uid://88s8xma1nlrl" path="res://assets/audio/explosion.wav" id="5_ior5i"]
+
+[node name="Player" type="Node2D"]
+z_index = 10
+script = ExtResource("1_xw3nr")
+metadata/_edit_horizontal_guides_ = [-6.0]
+
+[node name="Collision" type="Area2D" parent="."]
+
+[node name="Area" type="CollisionPolygon2D" parent="Collision"]
+scale = Vector2(3, 3)
+polygon = PackedVector2Array(0, -10, 5, 5, 0, 3, -5, 5)
+
+[node name="Sprite" type="Polygon2D" parent="."]
+scale = Vector2(3, 3)
+polygon = PackedVector2Array(0, -10, 5, 5, 1.66667, 3.66667, 0, 6.33333, -1.66667, 3.66667, -5, 5)
+
+[node name="EngineParticles" type="GPUParticles2D" parent="."]
+z_index = -1
+position = Vector2(0, 9)
+emitting = false
+amount = 200
+process_material = ExtResource("2_wneyp")
+lifetime = 0.8
+
+[node name="EngineAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_tljfh")
+volume_db = -80.0
+pitch_scale = 0.7
+autoplay = true
+
+[node name="ShootAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_kp4u1")
+volume_db = -11.86
+
+[node name="DieAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_ior5i")
+volume_db = -11.86
+pitch_scale = 0.85
+
+[node name="ShootAgainTimer" type="Timer" parent="."]
+wait_time = 0.7
+one_shot = true
+
+[connection signal="area_entered" from="Collision" to="." method="collision"]
+[connection signal="timeout" from="ShootAgainTimer" to="." method="canShootAgain"]
