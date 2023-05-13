@@ -2,6 +2,8 @@ extends Node2D
 
 var screenSize = GlobalLoad.screenSize
 
+@export var powerUpScene:PackedScene
+
 @onready var graceDist = self.get_parent().get_parent().graceDist
 
 var amountToRotate:float # Randomly rotate a little bit
@@ -22,6 +24,11 @@ func _ready():
 	
 	$Shape.polygon = shapePolygon
 	$CollisionArea/Collision.set_deferred("polygon", shapePolygon)
+	
+	# Randomly change the color a little bit
+	var cRand = 0.2
+	$Shape.color *= 1 - randf()*cRand
+	$Shape.color.a = 1 # Set the alpha back to 1.
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -67,7 +74,22 @@ func generateMeteorShape() -> PackedVector2Array:
 		# Move to the angle of the next point
 		angleOfThisPoint += TAU / numberOfPoints
 	
-	return PackedVector2Array(pointLocations)	
+	# Also configure the particles to reflect the size of the meteor
+	configureParticles(avgRadiusOfThisMeteor)
+	
+	return PackedVector2Array(pointLocations)
+
+func configureParticles(meteorRadius):
+	# Configure the size directly
+	$DestroyParticles.process_material.emission_sphere_radius = meteorRadius * 1.2
+	
+	# Increase the number of particles if the meteor is bigger
+	#$DestroyParticles.amount = 16 * (meteorRadius/20)
+	
+	# Increase the size of the particles if the meteor is bigger
+	var particleScale = 4 * (meteorRadius/20)
+	$DestroyParticles.process_material.scale_min = particleScale
+	$DestroyParticles.process_material.scale_max = particleScale*2
 
 # Returns true if the meteor is out of the screen and should be despawned
 func isOffscreen():
@@ -102,9 +124,17 @@ func checkForDespawn():
 		self.queue_free() # Delete the meteor from the universe
 
 func destroyThisMeteor():
+	if randf() < 0.1:
+		var newPowerup = powerUpScene.instantiate()
+		newPowerup.position = self.position
+		self.get_parent().call_deferred("add_child", newPowerup)
+	
+	# Disable collision, hide the sprite, tell the despawner that this meteor
+	# can be despawned, and show the particles.
 	self.destroyed = true
-	self.hide()
+	$Shape.hide()
 	$CollisionArea.queue_free()
+	$DestroyParticles.emitting = true
 	
 	await get_tree().create_timer(1).timeout # Wait one second before actually disappearing, just for the sound to play
 	

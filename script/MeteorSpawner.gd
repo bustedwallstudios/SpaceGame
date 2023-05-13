@@ -10,7 +10,7 @@ var screenSize = GlobalLoad.screenSize
 # be seen spawning in
 var graceDist = 121 # 120px is the max meteor size
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+# Called every frameww'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	frame += 1
 

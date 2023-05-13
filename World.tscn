@@ -26,4 +26,5 @@ BulletScene = ExtResource("2_k5pv1")
 position = Vector2(641, 360)
 
 [node name="Border" type="Line2D" parent="."]
+z_index = 2376
 points = PackedVector2Array(1, 5, 1276, 5, 1276, 715, 6, 715, 6, 0)

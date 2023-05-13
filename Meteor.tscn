@@ -1,13 +1,40 @@
-[gd_scene load_steps=3 format=3 uid="uid://db342u2nxegdr"]
+[gd_scene load_steps=7 format=3 uid="uid://db342u2nxegdr"]
 
 [ext_resource type="Script" path="res://script/Meteor.gd" id="1_nr1oi"]
+[ext_resource type="PackedScene" uid="uid://b3bmnk2v1d4fq" path="res://Powerup.tscn" id="2_oa0s2"]
 [ext_resource type="AudioStream" uid="uid://88s8xma1nlrl" path="res://assets/audio/explosion.wav" id="2_uwtic"]
+
+[sub_resource type="Curve" id="Curve_2j8nr"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_qgxne"]
+curve = SubResource("Curve_2j8nr")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_df0xg"]
+emission_shape = 1
+emission_sphere_radius = 20.0
+particle_flag_disable_z = true
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 14.09
+initial_velocity_max = 14.09
+angular_velocity_min = -500.0
+angular_velocity_max = 500.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 5.0
+scale_max = 10.0
+scale_curve = SubResource("CurveTexture_qgxne")
+color = Color(0.560784, 0.560784, 0.560784, 1)
 
 [node name="Meteor" type="Node2D"]
 script = ExtResource("1_nr1oi")
+powerUpScene = ExtResource("2_oa0s2")
 
 [node name="Shape" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-8, -10, 4, -10, 8, 3, -16, 5)
+color = Color(0.439216, 0.439216, 0.439216, 1)
+polygon = PackedVector2Array(-19, -20, 20, -22, 25, 20, -34, 19)
 
 [node name="CollisionArea" type="Area2D" parent="."]
 
@@ -17,5 +44,13 @@ polygon = PackedVector2Array(-15, -16, 15, -17, 19, 16, -22, 14)
 [node name="DestroyedAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("2_uwtic")
 pitch_scale = 1.53
+
+[node name="DestroyParticles" type="GPUParticles2D" parent="."]
+z_index = 1
+emitting = false
+amount = 16
+process_material = SubResource("ParticleProcessMaterial_df0xg")
+one_shot = true
+explosiveness = 1.0
 
 [connection signal="area_entered" from="CollisionArea" to="." method="collision"]

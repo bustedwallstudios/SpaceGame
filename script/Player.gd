@@ -94,6 +94,8 @@ func shoot():
 		self.get_parent().add_child(thisBullet)
 	
 	$ShootAudio.play()
+	
+	$ShootParticles.emitting = true
 
 # Limits the velocity to a maximum speed, and it works diagonally too
 func limitVelocity():
@@ -123,9 +125,19 @@ func canShootAgain():
 	canShoot = true
 
 func collision(area):
-	if area.get_parent().name.count("Meteor") > 0:
+	if areaIs(area, "Meteor"):
 		if immune: return
 		die()
+	elif areaIs(area, "Powerup"):
+		powerup(area.get_parent().powerupType)
+
+func powerup(type):
+	match type:
+		1:
+			# Powerup type 1 grants rapidfire for 5 seconds.
+			$ShootAgainTimer.wait_time *= 0.2
+			await get_tree().create_timer(5).timeout
+			$ShootAgainTimer.wait_time /= 0.2
 
 func die():
 	$DieAudio.play()
@@ -145,3 +157,7 @@ func respawn():
 		flickerDelay -= 0.005
 	
 	immune = false
+
+# If the area that is passed in contains the string, it is that thing. A little messy.
+func areaIs(areaNode, testString):
+	return areaNode.get_parent().name.count(testString) > 0

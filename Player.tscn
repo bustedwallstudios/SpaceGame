@@ -1,10 +1,32 @@
-[gd_scene load_steps=6 format=3 uid="uid://wjjon1ih65u5"]
+[gd_scene load_steps=9 format=3 uid="uid://wjjon1ih65u5"]
 
 [ext_resource type="Script" path="res://script/Player.gd" id="1_xw3nr"]
 [ext_resource type="AudioStream" uid="uid://nu4fs5xuqj0m" path="res://assets/audio/rocketLoop.mp3" id="2_tljfh"]
 [ext_resource type="Material" uid="uid://ftsh5ftsmcxs" path="res://assets/resources/PlayerRocketParticles.tres" id="2_wneyp"]
 [ext_resource type="AudioStream" uid="uid://buhcovy7llhyk" path="res://assets/audio/laserShoot.wav" id="4_kp4u1"]
 [ext_resource type="AudioStream" uid="uid://88s8xma1nlrl" path="res://assets/audio/explosion.wav" id="5_ior5i"]
+
+[sub_resource type="Gradient" id="Gradient_h82yu"]
+offsets = PackedFloat32Array(0, 0.556757, 1)
+colors = PackedColorArray(0, 1, 0, 1, 0, 1, 0.0784314, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_3nwom"]
+gradient = SubResource("Gradient_h82yu")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_wjogl"]
+particle_flag_disable_z = true
+direction = Vector3(0, -1, 0)
+spread = 26.32
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 36.17
+initial_velocity_max = 151.76
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+linear_accel_min = -100.0
+scale_min = 3.0
+scale_max = 3.0
+color = Color(0.0784314, 1, 0, 1)
+color_ramp = SubResource("GradientTexture1D_3nwom")
 
 [node name="Player" type="Node2D"]
 z_index = 10
@@ -28,6 +50,15 @@ emitting = false
 amount = 200
 process_material = ExtResource("2_wneyp")
 lifetime = 0.8
+
+[node name="ShootParticles" type="GPUParticles2D" parent="."]
+position = Vector2(0, -30)
+emitting = false
+amount = 16
+process_material = SubResource("ParticleProcessMaterial_wjogl")
+lifetime = 0.2
+one_shot = true
+explosiveness = 1.0
 
 [node name="EngineAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("2_tljfh")
