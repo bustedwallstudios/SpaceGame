@@ -5,6 +5,9 @@ extends Node2D
 
 @export var PowerupProgressBarScene:PackedScene
 
+# The player starts with three lives
+var currentLives = 3
+
 # The locations at which the bullets appear (the ends of the cannons basically)
 var bulletSpawnLocations = [
 	Vector2(0, -20),
@@ -28,6 +31,8 @@ func _ready():
 	self.position = screenSize/2
 	self.rotation = 0
 	vel = Vector2.ZERO
+	
+	self.get_parent().get_parent().updateLivesIndicator(currentLives)
 	
 	respawn()
 
@@ -162,8 +167,11 @@ func createPowerupTimer(powerupType, time, color):
 
 func die():
 	$Audio/DieAudio.play()
-	_ready()
 	
+	currentLives -= 1
+	self.get_parent().get_parent().updateLivesIndicator(currentLives)
+	
+	_ready()
 	respawn()
 
 func respawn():

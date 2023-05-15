@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://dim0x377ng4om"]
+[gd_scene load_steps=7 format=3 uid="uid://dim0x377ng4om"]
 
 [ext_resource type="Script" path="res://script/World.gd" id="1_0vnsu"]
 [ext_resource type="PackedScene" uid="uid://wjjon1ih65u5" path="res://scenes/Player.tscn" id="1_26uqp"]
 [ext_resource type="FontFile" uid="uid://cm4fbbhd43jfy" path="res://assets/font/blocked.ttf" id="3_6qya7"]
 [ext_resource type="PackedScene" uid="uid://cfpu0652e7xjt" path="res://scenes/MeteorSpawner.tscn" id="3_b3oud"]
+[ext_resource type="PackedScene" uid="uid://dectf6qyqqiaf" path="res://scenes/livesIndicator.tscn" id="3_srjt4"]
 
 [sub_resource type="Environment" id="Environment_osvva"]
 background_mode = 3
@@ -24,6 +25,9 @@ environment = SubResource("Environment_osvva")
 
 [node name="Player" parent="PlayerStuff" instance=ExtResource("1_26uqp")]
 position = Vector2(640, 360)
+
+[node name="LivesIndicator" parent="PlayerStuff" instance=ExtResource("3_srjt4")]
+position = Vector2(11, 10)
 
 [node name="MeteorSpawner" parent="." instance=ExtResource("3_b3oud")]
 
