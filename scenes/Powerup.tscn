@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://b3bmnk2v1d4fq"]
+[gd_scene load_steps=9 format=3 uid="uid://b3bmnk2v1d4fq"]
 
-[ext_resource type="Script" path="res://script/Powerup.gd" id="1_52nej"]
+[ext_resource type="Script" path="res://script/Powerup.gd" id="1_f7ko4"]
+[ext_resource type="AudioStream" uid="uid://cogyry4oj3a5v" path="res://assets/audio/PowerupCollect.wav" id="2_48n06"]
 
 [sub_resource type="Curve" id="Curve_bq5aw"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.264339, 1), 0.0, 0.0, 0, 0, Vector2(0.603491, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -49,7 +50,7 @@ scale_max = 4.0
 color_ramp = SubResource("GradientTexture1D_rufmc")
 
 [node name="Powerup" type="Node2D"]
-script = ExtResource("1_52nej")
+script = ExtResource("1_f7ko4")
 
 [node name="CollisionArea" type="Area2D" parent="."]
 
@@ -112,6 +113,10 @@ autostart = true
 wait_time = 10.0
 one_shot = true
 autostart = true
+
+[node name="CollectAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_48n06")
+volume_db = 10.0
 
 [connection signal="area_entered" from="CollisionArea" to="." method="collision"]
 [connection signal="timeout" from="FlashTimer" to="." method="flicker"]

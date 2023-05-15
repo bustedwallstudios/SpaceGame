@@ -3,12 +3,14 @@ extends Node2D
 # The bullet scene, so that bullets can be easily created on the player
 @export var BulletScene:PackedScene
 
+@export var PowerupProgressBarScene:PackedScene
+
 # The locations at which the bullets appear (the ends of the cannons basically)
 var bulletSpawnLocations = [
 	Vector2(0, -20),
 ]
 
-var screenSize = Vector2(1280, 720)
+var screenSize = GlobalLoad.screenSize
 
 var vel:Vector2 = Vector2(0, 0)
 
@@ -30,7 +32,7 @@ func _ready():
 	respawn()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	screenWrap()
 	
 	if Input.is_action_pressed("turnLeft"):
@@ -65,11 +67,11 @@ func thrust():
 	
 	# If the audio isn't already playing, start playing it (if it is already playing
 	# and it is told to play every frame, it will restart every frame...)
-	if not $EngineAudio.playing:
-		$EngineAudio.playing = true
+	if not $Audio/EngineAudio.playing:
+		$Audio/EngineAudio.playing = true
 	
 	# Quickly but gradually bring up the volume from -80dB when they start rocketing
-	$EngineAudio.volume_db = lerp($EngineAudio.volume_db, -12.0, 0.15)
+	$Audio/EngineAudio.volume_db = lerp($Audio/EngineAudio.volume_db, -12.0, 0.15)
 
 func dontThrust():
 	vel *= 1 - drag
@@ -78,7 +80,7 @@ func dontThrust():
 	$EngineParticles.emitting = false
 	
 	# Quickly but gradually put the volume to 0 when they stop rocketing
-	$EngineAudio.volume_db = lerp($EngineAudio.volume_db, -80.0, 0.025)
+	$Audio/EngineAudio.volume_db = lerp($Audio/EngineAudio.volume_db, -80.0, 0.025)
 
 # Shoots whatever bullets from whatever placed
 func shoot():
@@ -93,7 +95,7 @@ func shoot():
 		
 		self.get_parent().add_child(thisBullet)
 	
-	$ShootAudio.play()
+	$Audio/ShootAudio.play()
 	
 	$ShootParticles.emitting = true
 
@@ -133,14 +135,33 @@ func collision(area):
 
 func powerup(type):
 	match type:
-		1:
+		0:
+			var seconds = 5
 			# Powerup type 1 grants rapidfire for 5 seconds.
 			$ShootAgainTimer.wait_time *= 0.2
-			await get_tree().create_timer(5).timeout
+			
+			# Reset the time left on the bullet shoot timer, so that
+			# the powerup takes effect immediately
+			$ShootAgainTimer.start()
+			
+			createPowerupTimer(type, seconds, Color(0, 1, 0, 0.5))
+			
+			await get_tree().create_timer(seconds).timeout
 			$ShootAgainTimer.wait_time /= 0.2
 
+func createPowerupTimer(powerupType, time, color):
+	var powerupTimer = PowerupProgressBarScene.instantiate()
+	
+	powerupTimer.powerupNum = powerupType
+	powerupTimer.time  = time
+	powerupTimer.color = color
+	
+	self.add_child(powerupTimer)
+	
+	# The timer handles its own deletion
+
 func die():
-	$DieAudio.play()
+	$Audio/DieAudio.play()
 	_ready()
 	
 	respawn()

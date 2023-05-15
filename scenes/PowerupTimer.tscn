@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://bb7f7rspujgff"]
+
+[ext_resource type="Script" path="res://script/PowerupTimer.gd" id="1_frpqs"]
+[ext_resource type="Texture2D" uid="uid://bsgfdv30q2ca8" path="res://assets/img/circleProgressBar.png" id="2_6jlt7"]
+
+[node name="PowerupTimer" type="Node2D"]
+script = ExtResource("1_frpqs")
+
+[node name="Progress" type="TextureProgressBar" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+max_value = 1.0
+step = 0.01
+value = 0.9
+fill_mode = 5
+nine_patch_stretch = true
+texture_progress = ExtResource("2_6jlt7")
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="Timer" to="." method="timerEnded"]

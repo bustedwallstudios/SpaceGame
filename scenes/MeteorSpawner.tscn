@@ -1,11 +1,11 @@
 [gd_scene load_steps=3 format=3 uid="uid://cfpu0652e7xjt"]
 
-[ext_resource type="Script" path="res://script/MeteorSpawner.gd" id="1_vvaj5"]
-[ext_resource type="PackedScene" uid="uid://db342u2nxegdr" path="res://Meteor.tscn" id="2_uhy57"]
+[ext_resource type="Script" path="res://script/MeteorSpawner.gd" id="1_wxigm"]
+[ext_resource type="PackedScene" uid="uid://chhj2mw6gud4l" path="res://scenes/Meteor.tscn" id="2_r72ws"]
 
 [node name="MeteorSpawner" type="Node2D"]
-script = ExtResource("1_vvaj5")
-MeteorScene = ExtResource("2_uhy57")
+script = ExtResource("1_wxigm")
+MeteorScene = ExtResource("2_r72ws")
 
 [node name="SpawnTimer" type="Timer" parent="."]
 wait_time = 1.333

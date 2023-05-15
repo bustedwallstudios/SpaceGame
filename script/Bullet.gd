@@ -16,7 +16,7 @@ func _ready():
 	moveVector += velAdjustment
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta): 
+func _process(_delta): 
 	self.position += moveVector
 	
 	if self.position.length() > 2000: # If the bullet is really far away

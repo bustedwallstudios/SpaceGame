@@ -16,6 +16,9 @@ var customSize = -1 # Set by whatever creates this meteor
 var destroyed:bool = false # Set true when shot
 var shouldDespawn:bool = false
 
+# Whether or not this meteor should have a powerup crystal thing on it
+var hasPowerup = randf() < 0.1
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	amountToRotate = randf_range(-1.5, 1.5)
@@ -29,6 +32,11 @@ func _ready():
 	var cRand = 0.2
 	$Shape.color *= 1 - randf()*cRand
 	$Shape.color.a = 1 # Set the alpha back to 1.
+	
+	if hasPowerup:
+		$Shape/Crystal.show()
+		$Shape/Crystal.position = Vector2(randf_range(-20, 20), randf_range(-20, 20))
+		$Shape/Crystal.rotation = randf_range(0, TAU)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -106,6 +114,11 @@ func collision(area):
 
 # Called when shot with a bullet
 func hit():
+	if hasPowerup:
+		GlobalLoad.score += 3
+	else:
+		GlobalLoad.score += 1
+	
 	# If the meteor is big enough, break apart into smaller ones
 	if self.avgRadiusOfThisMeteor > 70: 
 		for i in range(0, 2):
@@ -117,14 +130,9 @@ func hit():
 	
 	destroyThisMeteor()
 
-func checkForDespawn():
-	var shouldDeleteMeteor = self.isOffscreen() or self.shouldDespawn
-	
-	if shouldDeleteMeteor:
-		self.queue_free() # Delete the meteor from the universe
-
 func destroyThisMeteor():
-	if randf() < 0.1:
+	# If the meteor has a powerup crystal thing on it, then create one when it disappears
+	if hasPowerup:
 		var newPowerup = powerUpScene.instantiate()
 		newPowerup.position = self.position
 		self.get_parent().call_deferred("add_child", newPowerup)
@@ -133,9 +141,19 @@ func destroyThisMeteor():
 	# can be despawned, and show the particles.
 	self.destroyed = true
 	$Shape.hide()
-	$CollisionArea.queue_free()
+	disableCollision()
 	$DestroyParticles.emitting = true
 	
 	await get_tree().create_timer(1).timeout # Wait one second before actually disappearing, just for the sound to play
 	
 	self.shouldDespawn = true
+
+func disableCollision():
+	$CollisionArea.set_deferred("monitorable", false)
+	$CollisionArea.set_deferred("monitoring", false)
+
+func checkForDespawn():
+	var shouldDeleteMeteor = self.isOffscreen() or self.shouldDespawn
+	
+	if shouldDeleteMeteor:
+		self.queue_free() # Delete the meteor from the universe

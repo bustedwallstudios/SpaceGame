@@ -1,0 +1,54 @@
+[gd_scene load_steps=6 format=3 uid="uid://dim0x377ng4om"]
+
+[ext_resource type="Script" path="res://script/World.gd" id="1_0vnsu"]
+[ext_resource type="PackedScene" uid="uid://wjjon1ih65u5" path="res://scenes/Player.tscn" id="1_26uqp"]
+[ext_resource type="FontFile" uid="uid://cm4fbbhd43jfy" path="res://assets/font/blocked.ttf" id="3_6qya7"]
+[ext_resource type="PackedScene" uid="uid://cfpu0652e7xjt" path="res://scenes/MeteorSpawner.tscn" id="3_b3oud"]
+
+[sub_resource type="Environment" id="Environment_osvva"]
+background_mode = 3
+glow_blend_mode = 1
+glow_hdr_threshold = 0.08
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_0vnsu")
+
+[node name="WorldCamera" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+zoom = Vector2(0.5, 0.5)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_osvva")
+
+[node name="PlayerStuff" type="Node2D" parent="."]
+
+[node name="Player" parent="PlayerStuff" instance=ExtResource("1_26uqp")]
+position = Vector2(640, 360)
+
+[node name="MeteorSpawner" parent="." instance=ExtResource("3_b3oud")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(641, 360)
+
+[node name="Border" type="Line2D" parent="."]
+z_index = 2376
+points = PackedVector2Array(1, 5, 1276, 5, 1276, 715, 6, 715, 6, 0)
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="Label" type="Label" parent="Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 132.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("3_6qya7")
+theme_override_font_sizes/font_size = 64
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+metadata/_edit_group_ = true

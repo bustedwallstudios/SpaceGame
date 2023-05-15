@@ -1,8 +1,10 @@
 extends Node2D
 
 # The type of powerup that it is.
-# 1 is rapidfire
-var powerupType = 1
+# 0 is rapidfire
+var powerupType = 0
+
+var screenSize = GlobalLoad.screenSize
 
 var t = 0 # The time passed. This is used in a sine function for visual effect
 
@@ -39,29 +41,46 @@ func _process(delta):
 	# If 7 seconds have elapsed, then begin to waver
 	if shouldFlicker:
 		$ShapePieces.modulate.a = ((sin(t*2) + 1) / 2) / 2 + 0.5
+	
+	screenWrap()
 
-func flicker():
-	shouldFlicker = true
-
-# When the time runs out
-func despawn():
-	$CollisionArea.queue_free() # FIX THE BUG WHERE SOMETIMES THIS SAYS "CANNOT CALL METHOD ON A NULL VALUE"!!!!!!!!!!!!!!!
-	BROKEN!
+# When the player collects the powerup
+func collected():
+	disableCollision()
 	$ShapePieces.hide()
 	
-	$DespawnParticles.emitting = true
+	$CollectParticles.emitting = true
+	
+	$CollectAudio.play()
 	
 	# Wait 2 seconds for the particles to finish
 	await get_tree().create_timer(2).timeout
 	
 	self.queue_free()
 
-# When the player collects the powerup
-func collected():
-	$CollisionArea.queue_free()
+func screenWrap():
+	# If the powerup has exceeded the screen bounds on the X, put it on the other side.
+	if self.position.x  > screenSize.x:
+		self.position.x = 0
+	if self.position.x  < 0:
+		self.position.x = screenSize.x
+	
+	# Same for the y.
+	if self.position.y  > screenSize.y:
+		self.position.y = 0
+	if self.position.y  < 0:
+		self.position.y = screenSize.y
+
+func flicker():
+	shouldFlicker = true
+
+# When the time runs out
+func despawn():
+	disableCollision() # FIX THE BUG WHERE SOMETIMES THIS SAYS "CANNOT CALL METHOD ON A NULL VALUE"!!!!!!!!!!!!!!!
+	
 	$ShapePieces.hide()
 	
-	$CollectParticles.emitting = true
+	$DespawnParticles.emitting = true
 	
 	# Wait 2 seconds for the particles to finish
 	await get_tree().create_timer(2).timeout
@@ -72,3 +91,6 @@ func collision(area):
 	if area.get_parent().name.count("Player") > 0:
 		collected()
 
+func disableCollision():
+	$CollisionArea.set_deferred("monitorable", false)
+	$CollisionArea.set_deferred("monitoring", false)
