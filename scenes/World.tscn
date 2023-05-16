@@ -17,8 +17,11 @@ script = ExtResource("1_0vnsu")
 
 [node name="WorldCamera" type="Camera2D" parent="."]
 position = Vector2(640, 360)
+ignore_rotation = false
 zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_77qdf")
+decay = 0.2
+max_roll = 0.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_osvva")
@@ -33,9 +36,9 @@ position = Vector2(11, 10)
 
 [node name="MeteorSpawner" parent="." instance=ExtResource("3_b3oud")]
 
-[node name="Border" type="Line2D" parent="."]
-z_index = 2376
-points = PackedVector2Array(1, 5, 1276, 5, 1276, 715, 6, 715, 6, 0)
+[node name="Border" type="Polygon2D" parent="."]
+invert_enabled = true
+polygon = PackedVector2Array(11, 10, 1271, 10, 1271, 710, 11, 710)
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3

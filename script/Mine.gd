@@ -140,7 +140,7 @@ func despawn():
 	$ExplosionArea.set_deferred("monitoring",  false)
 	
 	# Wait 2 seconds for the audio and particles to finish
-	await get_tree().create_timer(3.5).timeout
+	await get_tree().create_timer(5).timeout
 	
 	self.queue_free()
 

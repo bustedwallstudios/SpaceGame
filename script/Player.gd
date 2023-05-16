@@ -25,7 +25,10 @@ var drag = 0.015
 
 var canShoot:bool = true # Set to true whenever the ShootAgainTimer expires
 
-var immune = true # Starts true, until the deathFlicker() is complete.
+var shouldThrust:bool = false
+
+var immune    = true # Starts true, until the deathFlicker() is complete.
+var currentlyDead = false # If this is false, don't allow the player to control the ship
 
 # If the player moved the mouse more recently than pressing A or D
 var lastMovedMouse = false
@@ -38,28 +41,60 @@ func _ready():
 	
 	self.get_parent().get_parent().updateLivesIndicator(currentLives)
 	
+	# Enable the collision, now that the player is alive
+	$Collision.monitorable = true
+	$Collision.monitoring  = true
+	
+	self.show()
+	
+	# This makes it so that the ship will not immediately turn towards the mouse,
+	# unless the player does actually move it when they respawn.
+	lastMovedMouse = false
+	
+	currentlyDead = false
+	
 	respawn()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	screenWrap()
 	
+	if not currentlyDead:
+		doControls()
+	
+	if shouldThrust:
+		thrust() # Do all the shit relating to thrusting
+	else:
+		dontThrust() # Do all the shit relating to NOT thrusting
+	
+	limitVelocity()
+	
+	# Actually move
+	self.position += vel
+
+func doControls():
+	
 	if Input.is_action_pressed("turnLeft"):
 		lastMovedMouse = false
 		self.rotation_degrees -= rotationSpeed
+	
 	elif Input.is_action_pressed("turnRight"):
 		lastMovedMouse = false
 		self.rotation_degrees += rotationSpeed
 	
-	# If the player moved the mouse last frame, or just more recently than
-	# they pressed A or D
 	elif Input.get_last_mouse_velocity().length() > 0 or lastMovedMouse:
+		# If the player moved the mouse last frame, or just more recently than
+		# they pressed A or D
 		lastMovedMouse = true
 		
 		var angleToMouse = (get_global_mouse_position() - global_position).angle() + PI/2
 		
+		# The supposed angle that the player will face in after the adjustment
+		# towards the mouse cursor.
 		var newAngle = lerp_angle(self.rotation, angleToMouse, 0.1)
 		
+		# The change in angle. This is found because if it is too high, it needs
+		# to be limited.
 		var angleDelta = newAngle - rotation
 		
 		# If the angle to turn is greater than the max allowed rotation speed,
@@ -68,26 +103,23 @@ func _process(delta):
 			angleDelta /= abs(angleDelta)
 			angleDelta *= deg_to_rad(rotationSpeed)
 		
-		# Use lerp_angle to rotate the player smoothly towards the target angle
-		rotation += angleDelta
+		# Rotate by the angle change amount
+		self.rotation += angleDelta
 	
 	if Input.is_action_pressed("thrust"):
-		thrust() # Do all the shit relating to thrusting
+		shouldThrust = true
 	
 	else: # If the player is not thrusting, gradually slow down
 		# Do all the shit that needs to be done when the player is NOT thrusting
-		dontThrust()
-		
+		shouldThrust = false
+	
+	# If the player is trying to shoot, and the timer dictates that they can,
+	# shoot.
 	if Input.is_action_pressed("shoot") and canShoot:
 		canShoot = false
 		$ShootAgainTimer.start()
 		
 		shoot()
-	
-	limitVelocity()
-	
-	# Actually move
-	self.position += vel
 
 # Do all the thrusting stuff
 func thrust():
@@ -168,6 +200,7 @@ func collision(area):
 		powerup(object.powerupType)
 	
 	elif areaIs(area, "Mine"):
+		if immune: return
 		if object.hasDetonated:
 			die()
 
@@ -199,13 +232,31 @@ func createPowerupTimer(powerupType, time, color):
 	# The timer handles its own deletion
 
 func die():
+	currentlyDead = true # Don't allow the controls to be used until respawn
+	
+	# Play the death explosion audio
 	$Audio/DieAudio.play()
 	
+	# Subtract one life, and update the indicator
 	currentLives -= 1
 	self.get_parent().get_parent().updateLivesIndicator(currentLives)
 	
+	# Hide just the sprite
+	$Sprite.hide()
+	
+	# Stop doing anything in the thrust code
+	shouldThrust = false
+	
+	# Disable the collision until the player is back alive
+	$Collision.set_deferred("monitorable", false)
+	$Collision.set_deferred("monitoring",  false)
+	
+	self.get_parent().get_parent().shakeCamera(0.5, 3)
+	
+	# Wait 2 seconds to respawn
+	await get_tree().create_timer(2).timeout
+	
 	_ready()
-	respawn()
 
 func respawn():
 	immune = true
