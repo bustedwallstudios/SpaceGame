@@ -2,9 +2,7 @@ extends Node2D
 
 var screenSize = GlobalLoad.screenSize
 
-@export var powerUpScene:PackedScene
-
-@onready var graceDist = self.get_parent().get_parent().graceDist
+@onready var graceDist = self.get_parent().get_parent().meteorGraceDist
 
 var amountToRotate:float # Randomly rotate a little bit
 var directionToMove:Vector2 # Set by parent
@@ -108,9 +106,19 @@ func isOffscreen():
 	return isOutOfBoundsX or isOutOfBoundsY
 
 func collision(area):
-	var areaIsBullet = String(area.get_parent().name).count("Bullet") > 0
-	if areaIsBullet and not self.destroyed:
+	var object = area.get_parent()
+	if areaIs(area, "Bullet") and not self.destroyed:
 		hit()
+	
+	elif areaIs(area, "Mine") and not self.destroyed:
+		# If the mine has exploded, then it means that the meteor is touching
+		# the explosion
+		if object.hasDetonated:
+			hit()
+
+# If the area that is passed in contains the string, it is that thing. A little messy.
+func areaIs(areaNode, testString):
+	return areaNode.get_parent().name.count(testString) > 0
 
 # Called when shot with a bullet
 func hit():
@@ -133,9 +141,7 @@ func hit():
 func destroyThisMeteor():
 	# If the meteor has a powerup crystal thing on it, then create one when it disappears
 	if hasPowerup:
-		var newPowerup = powerUpScene.instantiate()
-		newPowerup.position = self.position
-		self.get_parent().call_deferred("add_child", newPowerup)
+		self.get_parent().get_parent().spawnPowerupAt(self.position)
 	
 	# Disable collision, hide the sprite, tell the despawner that this meteor
 	# can be despawned, and show the particles.

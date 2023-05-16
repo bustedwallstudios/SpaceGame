@@ -1,0 +1,130 @@
+[gd_scene load_steps=9 format=3 uid="uid://fc84oreii5x2"]
+
+[ext_resource type="Script" path="res://script/Mine.gd" id="1_41cab"]
+[ext_resource type="AudioStream" uid="uid://drwi7gelcavhm" path="res://assets/audio/bombBeep.mp3" id="2_7ic6r"]
+[ext_resource type="Texture2D" uid="uid://bxk4cexkbd6sw" path="res://assets/resources/fireColorRamp.tres" id="3_7gs52"]
+[ext_resource type="AudioStream" uid="uid://d3o75ifsrjyub" path="res://assets/audio/explosionBomb.mp3" id="3_r67sh"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_say2m"]
+radius = 179.025
+
+[sub_resource type="Curve" id="Curve_awq2k"]
+max_value = 2.0
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.498753, 1.01818), 0.0, 0.0, 0, 0, Vector2(1, 2), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_msbcr"]
+curve = SubResource("Curve_awq2k")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sln8f"]
+particle_flag_disable_z = true
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_max = 700.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 5.0
+scale_max = 5.0
+scale_curve = SubResource("CurveTexture_msbcr")
+color_ramp = ExtResource("3_7gs52")
+turbulence_enabled = true
+turbulence_noise_scale = 0.0
+
+[node name="Mine" type="Node2D"]
+script = ExtResource("1_41cab")
+metadata/_edit_horizontal_guides_ = [-8.0, 25.0, -25.0, 8.0]
+metadata/_edit_vertical_guides_ = [-8.0, 8.0, -25.0, 25.0]
+
+[node name="CollisionArea" type="Area2D" parent="."]
+
+[node name="Area" type="CollisionPolygon2D" parent="CollisionArea"]
+polygon = PackedVector2Array(-8, -25, 8, -25, 12, -12, 25, -8, 25, 8, 12, 12, 8, 25, -8, 25, -12, 12, -25, 8, -25, -8, -12, -12)
+
+[node name="ExplosionArea" type="Area2D" parent="."]
+visible = false
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExplosionArea"]
+shape = SubResource("CircleShape2D_say2m")
+
+[node name="Shape" type="Polygon2D" parent="."]
+color = Color(0.301961, 0.301961, 0.301961, 1)
+polygon = PackedVector2Array(-8, -25, 8, -25, 12, -12, 25, -8, 25, 8, 12, 12, 8, 25, -8, 25, -12, 12, -25, 8, -25, -8, -12, -12)
+
+[node name="DarkDetails" type="Node2D" parent="Shape"]
+
+[node name="Detail1" type="Polygon2D" parent="Shape/DarkDetails"]
+color = Color(0.176471, 0.176471, 0.176471, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="Detail2" type="Polygon2D" parent="Shape/DarkDetails"]
+rotation = 1.5708
+color = Color(0.176471, 0.176471, 0.176471, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="Detail3" type="Polygon2D" parent="Shape/DarkDetails"]
+rotation = -3.14159
+color = Color(0.176471, 0.176471, 0.176471, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="Detail4" type="Polygon2D" parent="Shape/DarkDetails"]
+rotation = -1.5708
+color = Color(0.176471, 0.176471, 0.176471, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="LightDetails" type="Node2D" parent="Shape"]
+scale = Vector2(-1, 1)
+
+[node name="Detail1" type="Polygon2D" parent="Shape/LightDetails"]
+color = Color(0.247059, 0.247059, 0.247059, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="Detail2" type="Polygon2D" parent="Shape/LightDetails"]
+rotation = 1.5708
+color = Color(0.247059, 0.247059, 0.247059, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="Detail3" type="Polygon2D" parent="Shape/LightDetails"]
+rotation = -3.14159
+color = Color(0.247059, 0.247059, 0.247059, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="Detail4" type="Polygon2D" parent="Shape/LightDetails"]
+rotation = -1.5708
+color = Color(0.247059, 0.247059, 0.247059, 1)
+polygon = PackedVector2Array(-9, -12, -4, -12, -1, -23, -6, -23)
+
+[node name="BlinkingLight" type="Polygon2D" parent="Shape"]
+color = Color(0.376471, 0, 0, 1)
+polygon = PackedVector2Array(-4, -8, 4, -8, 8, -4, 8, 4, 4, 8, -4, 8, -8, 4, -8, -4)
+
+[node name="FlashTimer" type="Timer" parent="."]
+wait_time = 0.6
+autostart = true
+
+[node name="ExplodeTimer" type="Timer" parent="."]
+wait_time = 4.0
+one_shot = true
+autostart = true
+
+[node name="BeepAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_7ic6r")
+volume_db = -13.684
+
+[node name="ExplosionAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_r67sh")
+volume_db = 3.649
+pitch_scale = 0.9
+
+[node name="ExplosionParticles" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 1200
+process_material = SubResource("ParticleProcessMaterial_sln8f")
+lifetime = 2.0
+one_shot = true
+explosiveness = 1.0
+
+[connection signal="area_entered" from="CollisionArea" to="." method="collision"]
+[connection signal="timeout" from="FlashTimer" to="." method="flash"]
+[connection signal="timeout" from="ExplodeTimer" to="." method="detonate"]

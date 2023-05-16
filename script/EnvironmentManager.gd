@@ -6,9 +6,13 @@ var screenSize = GlobalLoad.screenSize
 
 @export var MeteorScene:PackedScene
 
+@export var PowerupScene:PackedScene
+
+@export var MineScene:PackedScene
+
 # The distance OUTSIDE the screen that each meteor will spawn, so they cannot
 # be seen spawning in
-var graceDist = 121 # 120px is the max meteor size
+var meteorGraceDist = 121 # 120px is the max meteor size
 
 # Called every frameww'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -18,6 +22,15 @@ func _process(_delta):
 func tryCreateMeteor():
 	if $Meteors.get_child_count() < 10: # If there are less than 10 meteors on the screen right now
 		createMeteor()
+
+func createMine():
+	# Make it so that the next mine will spawn with a random interval
+	$MineSpawnTimer.wait_time = randf_range(4, 20)
+	
+	# Create the mine and add it to the scene. The mine handles its own initial
+	# position and stuff.
+	var newMine = MineScene.instantiate()
+	$Items.call_deferred("add_child", newMine)
 
 func createMeteor(customSize = -1, location:Vector2=Vector2.ZERO, direction:Vector2=Vector2.ZERO):
 	var thisMeteor = MeteorScene.instantiate()
@@ -53,21 +66,21 @@ func getStartPos() -> Vector2:
 	# The top of the screen
 	if edge == 0:
 		edgeX = randi() % intX
-		edgeY = -graceDist
+		edgeY = -meteorGraceDist
 	
 	# The right side of the screen
 	elif edge == 1:
-		edgeX = intX + graceDist
+		edgeX = intX + meteorGraceDist
 		edgeY = randi() % intY
 	
 	# The bottom of the screen
 	elif edge == 2:
 		edgeX = randi() % intX
-		edgeY = intY + graceDist
+		edgeY = intY + meteorGraceDist
 	
 	# The left side of the screen
 	else:
-		edgeX = -graceDist
+		edgeX = -meteorGraceDist
 		edgeY = randi() % intY
 
 	var initialPos:Vector2 = Vector2(edgeX, edgeY)
@@ -88,3 +101,7 @@ func getStartDirection(meteorPos:Vector2) -> Vector2:
 	
 	return direction
 
+func spawnPowerupAt(newPowerupPos:Vector2):
+	var newPowerup = PowerupScene.instantiate()
+	newPowerup.position = newPowerupPos
+	$Items.call_deferred("add_child", newPowerup)

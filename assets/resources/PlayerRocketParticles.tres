@@ -1,11 +1,6 @@
-[gd_resource type="ParticleProcessMaterial" load_steps=5 format=3 uid="uid://ftsh5ftsmcxs"]
+[gd_resource type="ParticleProcessMaterial" load_steps=4 format=3 uid="uid://ftsh5ftsmcxs"]
 
-[sub_resource type="Gradient" id="Gradient_6mwn0"]
-offsets = PackedFloat32Array(0, 0.116216, 0.181081, 0.262162, 0.378378, 0.445946, 0.743243, 1)
-colors = PackedColorArray(0.964706, 0.835294, 0.376471, 1, 0.968627, 0.458824, 0.133333, 1, 0.980392, 0.490196, 0.239216, 1, 0.972549, 0.286275, 0.164706, 1, 0.764706, 0.4, 0.34902, 1, 0.792157, 0.717647, 0.721569, 0.901961, 0.482353, 0.396078, 0.4, 0.854902, 0.533037, 0.533037, 0.533037, 0)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_0f52s"]
-gradient = SubResource("Gradient_6mwn0")
+[ext_resource type="Texture2D" uid="uid://bxk4cexkbd6sw" path="res://assets/resources/fireColorRamp.tres" id="1_c1ibx"]
 
 [sub_resource type="Curve" id="Curve_nopvh"]
 max_value = 4.0
@@ -30,6 +25,6 @@ orbit_velocity_max = 0.0
 scale_min = 2.0
 scale_max = 2.0
 scale_curve = SubResource("CurveTexture_3kxcm")
-color_ramp = SubResource("GradientTexture1D_0f52s")
+color_ramp = ExtResource("1_c1ibx")
 turbulence_enabled = true
 turbulence_noise_scale = 8.0

@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://chhj2mw6gud4l"]
+[gd_scene load_steps=6 format=3 uid="uid://chhj2mw6gud4l"]
 
 [ext_resource type="Script" path="res://script/Meteor.gd" id="1_rmosa"]
-[ext_resource type="PackedScene" uid="uid://b3bmnk2v1d4fq" path="res://scenes/Powerup.tscn" id="2_dk0df"]
 [ext_resource type="AudioStream" uid="uid://88s8xma1nlrl" path="res://assets/audio/explosion.wav" id="3_snarl"]
 
 [sub_resource type="Curve" id="Curve_2j8nr"]
@@ -30,7 +29,6 @@ color = Color(0.560784, 0.560784, 0.560784, 1)
 
 [node name="Meteor" type="Node2D"]
 script = ExtResource("1_rmosa")
-powerUpScene = ExtResource("2_dk0df")
 
 [node name="CollisionArea" type="Area2D" parent="."]
 
@@ -39,7 +37,7 @@ polygon = PackedVector2Array(-15, -16, 15, -17, 19, 16, -22, 14)
 
 [node name="Shape" type="Polygon2D" parent="."]
 color = Color(0.439216, 0.439216, 0.439216, 1)
-polygon = PackedVector2Array(-19, -20, 20, -22, 25, 20, -34, 19)
+polygon = PackedVector2Array(27, -20, 14, 13, -16, 11, -24, -26)
 
 [node name="Crystal" type="Polygon2D" parent="Shape"]
 visible = false

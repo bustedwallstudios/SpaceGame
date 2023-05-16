@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://c7unrll51qavj"]
+
+[ext_resource type="Script" path="res://script/EnvironmentManager.gd" id="1_ob146"]
+[ext_resource type="PackedScene" uid="uid://chhj2mw6gud4l" path="res://scenes/Meteor.tscn" id="2_r72ws"]
+[ext_resource type="PackedScene" uid="uid://b3bmnk2v1d4fq" path="res://scenes/Powerup.tscn" id="3_ioxs0"]
+[ext_resource type="PackedScene" uid="uid://fc84oreii5x2" path="res://scenes/Mine.tscn" id="4_2t76y"]
+
+[node name="EnvironmentManager" type="Node2D"]
+script = ExtResource("1_ob146")
+MeteorScene = ExtResource("2_r72ws")
+PowerupScene = ExtResource("3_ioxs0")
+MineScene = ExtResource("4_2t76y")
+
+[node name="MeteorSpawnTimer" type="Timer" parent="."]
+wait_time = 1.333
+autostart = true
+
+[node name="MineSpawnTimer" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true
+
+[node name="Meteors" type="Node2D" parent="."]
+
+[node name="Items" type="Node2D" parent="."]
+
+[connection signal="timeout" from="MeteorSpawnTimer" to="." method="tryCreateMeteor"]
+[connection signal="timeout" from="MineSpawnTimer" to="." method="createMine"]

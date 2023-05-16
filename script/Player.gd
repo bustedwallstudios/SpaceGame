@@ -19,12 +19,16 @@ var vel:Vector2 = Vector2(0, 0)
 
 var accel = 0.2
 var maxAllowedSpeed = 10
+var rotationSpeed = 3.5
 
 var drag = 0.015
 
 var canShoot:bool = true # Set to true whenever the ShootAgainTimer expires
 
 var immune = true # Starts true, until the deathFlicker() is complete.
+
+# If the player moved the mouse more recently than pressing A or D
+var lastMovedMouse = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -37,13 +41,35 @@ func _ready():
 	respawn()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
+func _process(delta):
 	screenWrap()
 	
 	if Input.is_action_pressed("turnLeft"):
-		self.rotation_degrees -= 3.5
-	if Input.is_action_pressed("turnRight"):
-		self.rotation_degrees += 3.5
+		lastMovedMouse = false
+		self.rotation_degrees -= rotationSpeed
+	elif Input.is_action_pressed("turnRight"):
+		lastMovedMouse = false
+		self.rotation_degrees += rotationSpeed
+	
+	# If the player moved the mouse last frame, or just more recently than
+	# they pressed A or D
+	elif Input.get_last_mouse_velocity().length() > 0 or lastMovedMouse:
+		lastMovedMouse = true
+		
+		var angleToMouse = (get_global_mouse_position() - global_position).angle() + PI/2
+		
+		var newAngle = lerp_angle(self.rotation, angleToMouse, 0.1)
+		
+		var angleDelta = newAngle - rotation
+		
+		# If the angle to turn is greater than the max allowed rotation speed,
+		# then only turn the allowed amount.
+		if abs(angleDelta) > deg_to_rad(rotationSpeed):
+			angleDelta /= abs(angleDelta)
+			angleDelta *= deg_to_rad(rotationSpeed)
+		
+		# Use lerp_angle to rotate the player smoothly towards the target angle
+		rotation += angleDelta
 	
 	if Input.is_action_pressed("thrust"):
 		thrust() # Do all the shit relating to thrusting
@@ -132,11 +158,18 @@ func canShootAgain():
 	canShoot = true
 
 func collision(area):
+	var object = area.get_parent()
+	
 	if areaIs(area, "Meteor"):
 		if immune: return
 		die()
+	
 	elif areaIs(area, "Powerup"):
-		powerup(area.get_parent().powerupType)
+		powerup(object.powerupType)
+	
+	elif areaIs(area, "Mine"):
+		if object.hasDetonated:
+			die()
 
 func powerup(type):
 	match type:

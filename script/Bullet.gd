@@ -23,6 +23,16 @@ func _process(_delta):
 		self.queue_free()
 
 func collision(area):
-	var areaIsMeteor = String(area.get_parent().name).count("Meteor")
-	if areaIsMeteor:
+	var object = area.get_parent()
+	
+	if areaIs(area, "Meteor"):
 		self.queue_free()
+	if areaIs(area, "Mine"):
+		# When the bullet hits a mine, randomly turn 60°
+		self.rotation += randf_range(-PI/4, PI/4)
+		moveVector *= 1.5 # Also move 1.5 times as fast afer the collision
+		_ready()
+
+# If the area that is passed in contains the string, it is that thing. A little messy.
+func areaIs(areaNode, testString):
+	return areaNode.get_parent().name.count(testString) > 0

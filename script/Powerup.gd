@@ -53,6 +53,10 @@ func collected():
 	
 	$CollectAudio.play()
 	
+	# Stop the despawn timer, otherwise it will still play the despawn particles
+	# if it has time to.
+	$DespawnTimer.stop()
+	
 	# Wait 2 seconds for the particles to finish
 	await get_tree().create_timer(2).timeout
 	
