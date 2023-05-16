@@ -37,6 +37,7 @@ position = Vector2(11, 10)
 [node name="MeteorSpawner" parent="." instance=ExtResource("3_b3oud")]
 
 [node name="Border" type="Polygon2D" parent="."]
+z_index = 100
 invert_enabled = true
 polygon = PackedVector2Array(11, 10, 1271, 10, 1271, 710, 11, 710)
 

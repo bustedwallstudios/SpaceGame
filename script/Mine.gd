@@ -20,6 +20,10 @@ var lightIsOn:bool    = false
 # it is merely contacting the mine itself.
 var hasDetonated = false
 
+# Set to true if the player shoots it, in order to determine whether they get points
+# for its destruction
+var playerDestroyed = false
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	self.position = getStartPos()
@@ -103,6 +107,10 @@ func screenWrap():
 func flash():
 	lightIsOn = !lightIsOn
 	
+	# If the flashes are coming really quickly, then keep the light on.
+	if $FlashTimer.wait_time < 0.08:
+		lightIsOn = true
+	
 	if lightIsOn: $Shape/BlinkingLight.color = brightColor
 	else:         $Shape/BlinkingLight.color = dimColor
 	
@@ -111,7 +119,11 @@ func flash():
 	$FlashTimer.wait_time *= 0.85
 
 func detonate():
+	if hasDetonated: return
 	hasDetonated = true
+	
+	if playerDestroyed:
+		GlobalLoad.score += 10 # When a mine is shot, increase the score by 10
 	
 	$FlashTimer.stop()
 	$ExplodeTimer.stop()
@@ -131,6 +143,20 @@ func detonate():
 	self.get_parent().get_parent().get_parent().shakeCamera(0.5)
 	
 	despawn()
+
+# Sets the time till detonation really low, and makes the bomb aggressively flash
+# and beep until that time runs out. Used for being hit by bullets or other bombs.
+func forcedDetonation(time:float = 0.5):
+	# If the time remaining until detonation is less than the amount
+	# that it will be after, don't even change it.
+	time = min($ExplodeTimer.time_left, time)
+		
+	# Reset the delay, but make it very brief. That way it will immediately
+	# take 0.3 seconds to explode, after being near its fallen comrade.
+	$ExplodeTimer.wait_time = time
+	$FlashTimer.wait_time   = 0.05 # Basically instant
+	$ExplodeTimer.start()
+	$FlashTimer.start()
 
 func despawn():
 	
@@ -152,8 +178,19 @@ func collision(area):
 	var object = area.get_parent()
 	
 	if areaIs(area, "Bullet"):
-		GlobalLoad.score += 10 # When a mine is shot, increase the score by 10
-		detonate()
+		playerDestroyed = true
+		
+		# The bullet will push the mine
+		self.vel += object.moveVector/5
+		
+		forcedDetonation()
+	
+	# If the mine collided with another mine
+	if areaIs(area, "Mine"):
+		# And the other mine has exploded (meaning that this mine is touching the
+		# explosion)
+		if object.hasDetonated:
+			forcedDetonation()
 
 # If the area that is passed in contains the string, it is that thing. A little messy.
 func areaIs(areaNode, testString):

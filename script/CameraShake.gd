@@ -33,8 +33,6 @@ func _process(delta):
 func shake():
 	var amount = pow(trauma, trauma_power)
 	
-	print(amount)
-	
 	if amount > max:
 		amount = max
 	

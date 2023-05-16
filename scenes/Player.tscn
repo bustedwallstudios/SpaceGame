@@ -19,8 +19,7 @@ gradient = SubResource("Gradient_2hmt3")
 particle_flag_disable_z = true
 spread = 180.0
 gravity = Vector3(0, 0, 0)
-initial_velocity_min = 30.0
-initial_velocity_max = 150.0
+initial_velocity_max = 80.0
 angular_velocity_min = -500.0
 angular_velocity_max = 500.0
 orbit_velocity_min = 0.0
@@ -96,7 +95,7 @@ lifetime = 0.8
 [node name="ExplosionParticles" type="GPUParticles2D" parent="."]
 z_index = -1
 emitting = false
-amount = 60
+amount = 40
 process_material = SubResource("ParticleProcessMaterial_raagi")
 one_shot = true
 explosiveness = 1.0
@@ -125,8 +124,7 @@ volume_db = -11.86
 
 [node name="DieAudio" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("5_ior5i")
-volume_db = -11.86
-pitch_scale = 0.85
+pitch_scale = 0.6
 
 [node name="ShootAgainTimer" type="Timer" parent="."]
 wait_time = 0.7

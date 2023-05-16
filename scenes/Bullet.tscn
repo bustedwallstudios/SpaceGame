@@ -1,18 +1,43 @@
-[gd_scene load_steps=2 format=3 uid="uid://bsydi5g80e858"]
+[gd_scene load_steps=5 format=3 uid="uid://bsydi5g80e858"]
 
 [ext_resource type="Script" path="res://script/Bullet.gd" id="1_bdof5"]
+
+[sub_resource type="Gradient" id="Gradient_wywpf"]
+offsets = PackedFloat32Array(0, 0.72973, 1)
+colors = PackedColorArray(0, 1, 0.466667, 1, 0, 1, 0.466667, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_if7ao"]
+gradient = SubResource("Gradient_wywpf")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_cjg1t"]
+particle_flag_disable_z = true
+direction = Vector3(0, 1, 0)
+spread = 0.0
+gravity = Vector3(0, 0, 0)
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 2.0
+scale_max = 2.0
+color = Color(0, 1, 0.466667, 0.392157)
+color_ramp = SubResource("GradientTexture1D_if7ao")
 
 [node name="Bullet" type="Node2D"]
 script = ExtResource("1_bdof5")
 
 [node name="Shape" type="Polygon2D" parent="."]
 z_index = 1
-color = Color(0, 1, 0.470588, 1)
-polygon = PackedVector2Array(-2, -12, 2, -12, 2, 12, -2, 12)
+color = Color(0, 1, 0.466667, 1)
+polygon = PackedVector2Array(2, -12, 2, 12, -2, 12, -2, -12)
 
 [node name="CollisionArea" type="Area2D" parent="."]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="CollisionArea"]
-polygon = PackedVector2Array(-2, -12, 2, -12, 2, 12, -2, 12)
+polygon = PackedVector2Array(-2, -12, 2, -12, 2, -9.50972, 2, 12, -2, 12)
+
+[node name="TrailParticles" type="GPUParticles2D" parent="."]
+position = Vector2(0, 11)
+amount = 12
+process_material = SubResource("ParticleProcessMaterial_cjg1t")
+preprocess = 38.89
 
 [connection signal="area_entered" from="CollisionArea" to="." method="collision"]

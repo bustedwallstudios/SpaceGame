@@ -27,11 +27,29 @@ func collision(area):
 	
 	if areaIs(area, "Meteor"):
 		self.queue_free()
+	
 	if areaIs(area, "Mine"):
-		# When the bullet hits a mine, randomly turn 60°
-		self.rotation += randf_range(-PI/4, PI/4)
-		moveVector *= 1.5 # Also move 1.5 times as fast afer the collision
-		_ready()
+		if object.hasDetonated:
+			turnAwayFrom(object.position, true)
+		else:
+			self.queue_free()
+
+func turnAwayFrom(pos:Vector2, isBomb):
+	var posToHere:Vector2 = self.position - pos
+	
+	# Get the relevant vectors for creating the final movement vector
+	var initial:Vector2   = moveVector
+	var forceDir:Vector2  = posToHere.normalized()
+	var force:float       = 500 / posToHere.length()
+	
+	# Add the force vector and initial vector together to get the new movement
+	# vec for the bullet
+	var resultant:Vector2 = forceDir*force + (initial/2)
+	
+	# Point the bullet in its new direction of movement
+	self.rotation = resultant.angle() + PI/2
+	
+	moveVector = resultant
 
 # If the area that is passed in contains the string, it is that thing. A little messy.
 func areaIs(areaNode, testString):

@@ -1,0 +1,9 @@
+Moved the screen border to Z-layer 100 (the powerups were displaying on top of it)
+
+Mines now explode (after a very brief delay) when they are near other exploding mines
+- This also happens when they are shot now, instead of the immediate explosion
+
+Bullets no longer turn when they hit a mine unless the mine exploded near it
+- They shoot away from the mine in this case
+
+Tweaked player death particles and sound

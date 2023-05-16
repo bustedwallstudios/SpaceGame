@@ -5,6 +5,8 @@ extends Node2D
 
 @export var PowerupProgressBarScene:PackedScene
 
+@onready var defaultShootDelay:float = $ShootAgainTimer.wait_time
+
 # The player starts with three lives
 var currentLives = 3
 
@@ -225,7 +227,7 @@ func powerup(type):
 			# After the powerup is over, set the shoot time back.
 			await get_tree().create_timer(seconds).timeout
 			# Only reset this if the player currently has a powerup
-			if $ShootAgainTimer.wait_time < 0.7:
+			if $ShootAgainTimer.wait_time < defaultShootDelay:
 				$ShootAgainTimer.wait_time /= 0.2
 
 func createPowerupTimer(powerupType, time, color):
@@ -264,8 +266,8 @@ func die():
 	
 	self.get_parent().get_parent().shakeCamera(0.5, 3)
 	
-	# Wait 2 seconds to respawn
-	await get_tree().create_timer(2).timeout
+	# Wait 3 seconds to respawn
+	await get_tree().create_timer(3).timeout
 	
 	_ready()
 
@@ -274,7 +276,7 @@ func resetPowerups():
 		timer.call_deferred("queue_free")
 	
 	# Reset the effect of the shooting powerup
-	$ShootAgainTimer.wait_time = 0.7
+	$ShootAgainTimer.wait_time = defaultShootDelay
 
 func respawn():
 	# Put the player back in the middle of the screen, with no rotation and no speed
