@@ -5,15 +5,27 @@ extends Node2D
 
 @export var PowerupProgressBarScene:PackedScene
 
-@onready var defaultShootDelay:float = $ShootAgainTimer.wait_time
+@export var defaultShootDelay:float = 0.7
 
 # The player starts with three lives
 var currentLives = 3
 
+@export var bodyIdx:int = 1
+@onready var bodyShapes = [
+	$CursorSprite,
+	$GunshipSprite
+]
+
 # The locations at which the bullets appear (the ends of the cannons basically)
 var bulletSpawnLocations = [
-	Vector2(0, -20),
+	[Vector2(0, -20)],
+	[Vector2(11, -9), Vector2(-11, -9)]
 ]
+var bulletN:int = 0 # This is used to determine, via modulus, which cannon should fire this time.
+
+# The correct values based on the current ship that is being used.
+@onready var bodySpriteNode = bodyShapes[bodyIdx]
+@onready var bulletSpawns = bulletSpawnLocations[bodyIdx]
 
 var screenSize = GlobalLoad.screenSize
 
@@ -35,21 +47,9 @@ var currentlyDead = false # If this is false, don't allow the player to control 
 # If the player moved the mouse more recently than pressing A or D
 var lastMovedMouse = false
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	self.get_parent().get_parent().updateLivesIndicator(currentLives)
-	
-	# Enable the collision, now that the player is alive
-	$Collision.monitorable = true
-	$Collision.monitoring  = true
-	
-	self.show()
-	
-	# This makes it so that the ship will not immediately turn towards the mouse,
-	# unless the player does actually move it when they respawn.
-	lastMovedMouse = false
-	
-	currentlyDead = false
+	defaultShootDelay /= bulletSpawnLocations[bodyIdx].size()
+	$ShootAgainTimer.wait_time = defaultShootDelay
 	
 	respawn()
 
@@ -149,20 +149,28 @@ func dontThrust():
 
 # Shoots whatever bullets from whatever placed
 func shoot():
-	for i in range(0, len(bulletSpawnLocations)):
-		var thisBullet = BulletScene.instantiate()
-		
-		thisBullet.rotation = self.rotation
-		
-		thisBullet.position = self.position + bulletSpawnLocations[i].rotated(self.rotation)
-		
-		thisBullet.velAdjustment = self.vel
-		
-		self.get_parent().add_child(thisBullet)
+	var thisBullet = BulletScene.instantiate()
+	
+	var turretCount = bulletSpawnLocations[bodyIdx].size()
+	var turretPos   = bulletSpawns[bulletN%turretCount].rotated(self.rotation)
+	
+	# Set the values on the bullet for when it appears in the scene
+	thisBullet.rotation = self.rotation
+	thisBullet.position = self.position + turretPos
+	thisBullet.velAdjustment = self.vel
+	
+	# The gunship has smaller bullets
+	if bodyIdx == 1:
+		thisBullet.scale *= 0.75
+	
+	self.get_parent().add_child(thisBullet)
 	
 	$Audio/ShootAudio.play()
 	
+	$ShootParticles.position = bulletSpawns[bulletN%turretCount]
 	$ShootParticles.emitting = true
+	
+	bulletN += 1 # Go to the next turret next time
 
 # Limits the velocity to a maximum speed, and it works diagonally too
 func limitVelocity():
@@ -253,7 +261,7 @@ func die():
 	self.get_parent().get_parent().updateLivesIndicator(currentLives)
 	
 	# Hide just the sprite
-	$Sprite.hide()
+	bodySpriteNode.hide()
 	
 	# Stop doing anything in the thrust code
 	shouldThrust = false
@@ -269,7 +277,44 @@ func die():
 	# Wait 3 seconds to respawn
 	await get_tree().create_timer(3).timeout
 	
-	_ready()
+	respawn()
+
+# Called when the node enters the scene tree for the first time.
+func respawn():
+	self.get_parent().get_parent().updateLivesIndicator(currentLives)
+	
+	# Enable the collision, now that the player is alive
+	$Collision.monitorable = true
+	$Collision.monitoring  = true
+	
+	self.show()
+	
+	# This makes it so that the ship will not immediately turn towards the mouse,
+	# unless the player does actually move it when they respawn.
+	lastMovedMouse = false
+	
+	currentlyDead = false
+	
+	# Put the player back in the middle of the screen, with no rotation and no speed
+	self.position = screenSize/2
+	self.rotation = 0
+	vel = Vector2.ZERO
+	
+	respawnFlicker()
+
+func respawnFlicker():
+	
+	immune = true
+	
+	var flickerDelay = 0.1
+	for i in range(0, 20):
+		bodySpriteNode.hide()
+		await get_tree().create_timer(flickerDelay).timeout
+		bodySpriteNode.show()
+		await get_tree().create_timer(flickerDelay).timeout
+		flickerDelay -= 0.005
+	
+	immune = false
 
 func resetPowerups():
 	for timer in $PowerupTimers.get_children():
@@ -277,24 +322,6 @@ func resetPowerups():
 	
 	# Reset the effect of the shooting powerup
 	$ShootAgainTimer.wait_time = defaultShootDelay
-
-func respawn():
-	# Put the player back in the middle of the screen, with no rotation and no speed
-	self.position = screenSize/2
-	self.rotation = 0
-	vel = Vector2.ZERO
-	
-	immune = true
-	
-	var flickerDelay = 0.1
-	for i in range(0, 20):
-		$Sprite.hide()
-		await get_tree().create_timer(flickerDelay).timeout
-		$Sprite.show()
-		await get_tree().create_timer(flickerDelay).timeout
-		flickerDelay -= 0.005
-	
-	immune = false
 
 # If the area that is passed in contains the string, it is that thing. A little messy.
 func areaIs(areaNode, testString):

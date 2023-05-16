@@ -16,7 +16,7 @@ wait_time = 1.333
 autostart = true
 
 [node name="MineSpawnTimer" type="Timer" parent="."]
-wait_time = 2.0
+wait_time = 8.0
 autostart = true
 
 [node name="Meteors" type="Node2D" parent="."]

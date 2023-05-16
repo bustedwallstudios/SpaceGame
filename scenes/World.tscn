@@ -30,6 +30,7 @@ environment = SubResource("Environment_osvva")
 
 [node name="Player" parent="PlayerStuff" instance=ExtResource("1_26uqp")]
 position = Vector2(640, 360)
+metadata/_edit_horizontal_guides_ = [-6.0]
 
 [node name="LivesIndicator" parent="PlayerStuff" instance=ExtResource("3_srjt4")]
 position = Vector2(11, 10)

@@ -7,6 +7,8 @@ var velAdjustment:Vector2
 # This is set in _ready(), because it is constant.
 var moveVector:Vector2
 
+var trailPoints = []
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Create a vector for movement. It is based on the rotation of the bullet, and
@@ -21,6 +23,19 @@ func _process(_delta):
 	
 	if self.position.length() > 2000: # If the bullet is really far away
 		self.queue_free()
+	
+	trail()
+
+func trail():
+	if trailPoints.size() > 5:
+		trailPoints.pop_front()
+	
+	trailPoints.append(self.position / self.scale)
+	
+	$TrailParticles.points = PackedVector2Array(trailPoints)
+	
+	$TrailParticles.global_position = Vector2.ZERO
+	$TrailParticles.global_rotation = 0
 
 func collision(area):
 	var object = area.get_parent()
@@ -54,3 +69,4 @@ func turnAwayFrom(pos:Vector2, isBomb):
 # If the area that is passed in contains the string, it is that thing. A little messy.
 func areaIs(areaNode, testString):
 	return areaNode.get_parent().name.count(testString) > 0
+

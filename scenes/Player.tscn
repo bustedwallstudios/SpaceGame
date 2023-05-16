@@ -56,7 +56,7 @@ z_index = 10
 script = ExtResource("1_xw3nr")
 BulletScene = ExtResource("2_eaplv")
 PowerupProgressBarScene = ExtResource("3_v1l6e")
-metadata/_edit_horizontal_guides_ = [-6.0]
+metadata/_edit_horizontal_guides_ = [2.0, -9.0]
 
 [node name="Collision" type="Area2D" parent="."]
 
@@ -64,23 +64,46 @@ metadata/_edit_horizontal_guides_ = [-6.0]
 scale = Vector2(3, 3)
 polygon = PackedVector2Array(0, -10, 5, 5, 0, 3, -5, 5)
 
-[node name="Sprite" type="Polygon2D" parent="."]
+[node name="CursorSprite" type="Polygon2D" parent="."]
+visible = false
 scale = Vector2(3, 3)
 polygon = PackedVector2Array(0, -10, 5, 5, 1.66667, 3.66667, 0, 6.33333, -1.66667, 3.66667, -5, 5)
 
-[node name="Sprite2" type="Polygon2D" parent="Sprite"]
+[node name="Sprite2" type="Polygon2D" parent="CursorSprite"]
 position = Vector2(0.333333, 0)
 rotation = 3.14159
 scale = Vector2(1, -1)
 color = Color(1, 0.360784, 0.360784, 1)
 polygon = PackedVector2Array(0.666667, -6.66667, 3.66667, 3, 1.33333, 2)
 
-[node name="Sprite3" type="Polygon2D" parent="Sprite"]
+[node name="Sprite3" type="Polygon2D" parent="CursorSprite"]
 position = Vector2(-0.333333, 0)
 color = Color(1, 0.360784, 0.360784, 1)
 polygon = PackedVector2Array(0.666667, -6.66667, 3.66667, 3, 1.33333, 2)
 
-[node name="Sprite4" type="Polygon2D" parent="Sprite"]
+[node name="Sprite4" type="Polygon2D" parent="CursorSprite"]
+position = Vector2(-0.333333, 0)
+color = Color(1, 0.360784, 0.360784, 1)
+polygon = PackedVector2Array(0.333333, 6.33333, 2, 3.66667, 0.333333, 2, -1.33333, 3.66667)
+
+[node name="GunshipSprite" type="Polygon2D" parent="."]
+visible = false
+scale = Vector2(3, 3)
+polygon = PackedVector2Array(0, -8, 2.66667, -2.33333, 3.33333, -3, 4, -3, 4, 0.666667, 3.33333, 3, 1.66667, 3.66667, 0, 6.33333, -1.66667, 3.66667, -3.33333, 3, -4, 0.666667, -4, -3, -3.33333, -3, -2.66667, -2.33333)
+
+[node name="Sprite2" type="Polygon2D" parent="GunshipSprite"]
+position = Vector2(0.333333, 0)
+rotation = 3.14159
+scale = Vector2(1, -1)
+color = Color(1, 0.360784, 0.360784, 1)
+polygon = PackedVector2Array(1.33332, -3.66667, 7.33334, 3.33331, 1.33334, 0.999997)
+
+[node name="Sprite3" type="Polygon2D" parent="GunshipSprite"]
+position = Vector2(-0.333333, 0)
+color = Color(1, 0.360784, 0.360784, 1)
+polygon = PackedVector2Array(1.33333, -3.66667, 8.33333, 3.33333, 1.33333, 1)
+
+[node name="Sprite4" type="Polygon2D" parent="GunshipSprite"]
 position = Vector2(-0.333333, 0)
 color = Color(1, 0.360784, 0.360784, 1)
 polygon = PackedVector2Array(0.333333, 6.33333, 2, 3.66667, 0.333333, 2, -1.33333, 3.66667)
@@ -102,6 +125,7 @@ explosiveness = 1.0
 local_coords = true
 
 [node name="ShootParticles" type="GPUParticles2D" parent="."]
+visible = false
 position = Vector2(0, -30)
 emitting = false
 amount = 16
