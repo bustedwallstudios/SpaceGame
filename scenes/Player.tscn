@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://wjjon1ih65u5"]
+[gd_scene load_steps=14 format=3 uid="uid://wjjon1ih65u5"]
 
 [ext_resource type="Script" path="res://script/Player.gd" id="1_xw3nr"]
 [ext_resource type="PackedScene" uid="uid://bsydi5g80e858" path="res://scenes/Bullet.tscn" id="2_eaplv"]
@@ -7,6 +7,28 @@
 [ext_resource type="PackedScene" uid="uid://bb7f7rspujgff" path="res://scenes/PowerupTimer.tscn" id="3_v1l6e"]
 [ext_resource type="AudioStream" uid="uid://buhcovy7llhyk" path="res://assets/audio/laserShoot.wav" id="4_kp4u1"]
 [ext_resource type="AudioStream" uid="uid://88s8xma1nlrl" path="res://assets/audio/explosion.wav" id="5_ior5i"]
+
+[sub_resource type="Gradient" id="Gradient_2hmt3"]
+offsets = PackedFloat32Array(0, 0.469697, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_caks4"]
+gradient = SubResource("Gradient_2hmt3")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_raagi"]
+particle_flag_disable_z = true
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 30.0
+initial_velocity_max = 150.0
+angular_velocity_min = -500.0
+angular_velocity_max = 500.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 6.0
+scale_max = 9.0
+color_ramp = SubResource("GradientTexture1D_caks4")
+collision_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_h82yu"]
 offsets = PackedFloat32Array(0, 0.556757, 1)
@@ -71,6 +93,15 @@ amount = 3000
 process_material = ExtResource("2_wneyp")
 lifetime = 0.8
 
+[node name="ExplosionParticles" type="GPUParticles2D" parent="."]
+z_index = -1
+emitting = false
+amount = 60
+process_material = SubResource("ParticleProcessMaterial_raagi")
+one_shot = true
+explosiveness = 1.0
+local_coords = true
+
 [node name="ShootParticles" type="GPUParticles2D" parent="."]
 position = Vector2(0, -30)
 emitting = false
@@ -100,6 +131,8 @@ pitch_scale = 0.85
 [node name="ShootAgainTimer" type="Timer" parent="."]
 wait_time = 0.7
 one_shot = true
+
+[node name="PowerupTimers" type="Node2D" parent="."]
 
 [connection signal="area_entered" from="Collision" to="." method="collision"]
 [connection signal="timeout" from="ShootAgainTimer" to="." method="canShootAgain"]

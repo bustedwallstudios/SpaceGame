@@ -35,10 +35,6 @@ var lastMovedMouse = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	self.position = screenSize/2
-	self.rotation = 0
-	vel = Vector2.ZERO
-	
 	self.get_parent().get_parent().updateLivesIndicator(currentLives)
 	
 	# Enable the collision, now that the player is alive
@@ -57,7 +53,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	screenWrap()
+	if not currentlyDead:
+		screenWrap()
 	
 	if not currentlyDead:
 		doControls()
@@ -137,7 +134,10 @@ func thrust():
 	$Audio/EngineAudio.volume_db = lerp($Audio/EngineAudio.volume_db, -12.0, 0.15)
 
 func dontThrust():
-	vel *= 1 - drag
+	# Do not slow the player down due to drag if they are dead, because then
+	# the particles will continue to fly away (Sivakumar)
+	if not currentlyDead:
+		vel *= 1 - drag
 	
 	# If they're NOT thrusting, DON'T emit particles
 	$EngineParticles.emitting = false
@@ -190,6 +190,11 @@ func canShootAgain():
 	canShoot = true
 
 func collision(area):
+	
+	# Don't handle any collisions if the player is dead
+	if self.currentlyDead:
+		return
+	
 	var object = area.get_parent()
 	
 	if areaIs(area, "Meteor"):
@@ -217,8 +222,11 @@ func powerup(type):
 			
 			createPowerupTimer(type, seconds, Color(0, 1, 0, 0.5))
 			
+			# After the powerup is over, set the shoot time back.
 			await get_tree().create_timer(seconds).timeout
-			$ShootAgainTimer.wait_time /= 0.2
+			# Only reset this if the player currently has a powerup
+			if $ShootAgainTimer.wait_time < 0.7:
+				$ShootAgainTimer.wait_time /= 0.2
 
 func createPowerupTimer(powerupType, time, color):
 	var powerupTimer = PowerupProgressBarScene.instantiate()
@@ -227,7 +235,7 @@ func createPowerupTimer(powerupType, time, color):
 	powerupTimer.time  = time
 	powerupTimer.color = color
 	
-	self.add_child(powerupTimer)
+	$PowerupTimers.add_child(powerupTimer)
 	
 	# The timer handles its own deletion
 
@@ -236,6 +244,7 @@ func die():
 	
 	# Play the death explosion audio
 	$Audio/DieAudio.play()
+	$ExplosionParticles.emitting = true
 	
 	# Subtract one life, and update the indicator
 	currentLives -= 1
@@ -246,6 +255,8 @@ func die():
 	
 	# Stop doing anything in the thrust code
 	shouldThrust = false
+	
+	resetPowerups()
 	
 	# Disable the collision until the player is back alive
 	$Collision.set_deferred("monitorable", false)
@@ -258,7 +269,19 @@ func die():
 	
 	_ready()
 
+func resetPowerups():
+	for timer in $PowerupTimers.get_children():
+		timer.call_deferred("queue_free")
+	
+	# Reset the effect of the shooting powerup
+	$ShootAgainTimer.wait_time = 0.7
+
 func respawn():
+	# Put the player back in the middle of the screen, with no rotation and no speed
+	self.position = screenSize/2
+	self.rotation = 0
+	vel = Vector2.ZERO
+	
 	immune = true
 	
 	var flickerDelay = 0.1
