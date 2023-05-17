@@ -2,6 +2,8 @@ extends Node2D
 
 var screenSize = GlobalLoad.screenSize
 
+@export var healthMultiplier = 1
+
 @onready var graceDist = self.get_parent().get_parent().meteorGraceDist
 
 var amountToRotate:float # Randomly rotate a little bit
@@ -9,6 +11,7 @@ var directionToMove:Vector2 # Set by parent
 var thisMeteorSpeed = randf_range(0.25, 2)
 
 var avgRadiusOfThisMeteor:float # Set in the generateMeteorShape() function
+var health:float # Set in the same place as the size
 var customSize = -1 # Set by whatever creates this meteor
 
 var destroyed:bool = false # Set true when shot
@@ -21,7 +24,10 @@ var hasPowerup = randf() < 0.1
 func _ready():
 	amountToRotate = randf_range(-1.5, 1.5)
 	
+	# Generate the polygon for the meteor's collision and shape
 	var shapePolygon = generateMeteorShape()
+	
+	health = avgRadiusOfThisMeteor
 	
 	$Shape.polygon = shapePolygon
 	$CollisionArea/Collision.set_deferred("polygon", shapePolygon)
@@ -106,27 +112,43 @@ func isOffscreen():
 	return isOutOfBoundsX or isOutOfBoundsY
 
 func collision(area):
+	# The object that was collided with (a bullet, meteor, player, etc)
 	var object = area.get_parent()
+	
 	if areaIs(area, "Bullet") and not self.destroyed:
-		hit()
+		hit(object.damage)
 	
 	elif areaIs(area, "Mine") and not self.destroyed:
 		# If the mine has exploded, then it means that the meteor is touching
 		# the explosion
 		if object.hasDetonated:
-			hit()
+			var distanceToMine = (object.position - self.position).length()
+			
+			hit(500/distanceToMine)
 
 # If the area that is passed in contains the string, it is that thing. A little messy.
 func areaIs(areaNode, testString):
 	return areaNode.get_parent().name.count(testString) > 0
 
-# Called when shot with a bullet
-func hit():
+# Called when damaged by something
+func hit(damage:float):
 	if hasPowerup:
 		GlobalLoad.score += 3
 	else:
 		GlobalLoad.score += 1
 	
+	health -= damage
+	
+	# If there is still health remaining, then just crack the meteor.
+	if health > 0:
+		crack()
+	else:
+		breakMeteor()
+
+func crack():
+	$Cracks/CrackLine.add_point()
+
+func breakMeteor():
 	# If the meteor is big enough, break apart into smaller ones
 	if self.avgRadiusOfThisMeteor > 70: 
 		for i in range(0, 2):
