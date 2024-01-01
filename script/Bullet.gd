@@ -1,13 +1,22 @@
 extends Node2D
 
-var speed:int = 15
+var speed:int = 20
 
 var velAdjustment:Vector2
 
 # This is set in _ready(), because it is constant.
 var moveVector:Vector2
 
-var trailPoints = []
+var trailPoints:Array = []
+
+# Set wherever this bullet is created from, because different guns might have
+# different damage amounts
+var damage
+
+# The ship/enemy/etc that shot this bullet. Set by the parent on creation. When
+# the bullet collides, it checks if it collided with its owner, and if so, doesn't
+# do anything.
+var bulletOwner:Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -21,7 +30,7 @@ func _ready():
 func _process(_delta): 
 	self.position += moveVector
 	
-	if self.position.length() > 2000: # If the bullet is really far away
+	if self.position.length() > 5000: # If the bullet is really far away
 		self.queue_free()
 	
 	trail()
@@ -40,10 +49,10 @@ func trail():
 func collision(area):
 	var object = area.get_parent()
 	
-	if areaIs(area, "Meteor"):
+	if GlobalLoad.inGroup(area, "Meteor"):
 		self.queue_free()
 	
-	if areaIs(area, "Mine"):
+	if GlobalLoad.inGroup(area, "Mine"):
 		if object.hasDetonated:
 			turnAwayFrom(object.position, true)
 		else:
@@ -65,8 +74,3 @@ func turnAwayFrom(pos:Vector2, isBomb):
 	self.rotation = resultant.angle() + PI/2
 	
 	moveVector = resultant
-
-# If the area that is passed in contains the string, it is that thing. A little messy.
-func areaIs(areaNode, testString):
-	return areaNode.get_parent().name.count(testString) > 0
-

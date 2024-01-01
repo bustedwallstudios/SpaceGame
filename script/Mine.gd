@@ -177,7 +177,7 @@ func disableCollision():
 func collision(area):
 	var object = area.get_parent()
 	
-	if areaIs(area, "Bullet"):
+	if GlobalLoad.inGroup(area, "Bullet"):
 		playerDestroyed = true
 		
 		# The bullet will push the mine
@@ -186,12 +186,8 @@ func collision(area):
 		forcedDetonation()
 	
 	# If the mine collided with another mine
-	if areaIs(area, "Mine"):
+	if GlobalLoad.inGroup(area, "Mine"):
 		# And the other mine has exploded (meaning that this mine is touching the
 		# explosion)
 		if object.hasDetonated:
 			forcedDetonation()
-
-# If the area that is passed in contains the string, it is that thing. A little messy.
-func areaIs(areaNode, testString):
-	return areaNode.get_parent().name.count(testString) > 0

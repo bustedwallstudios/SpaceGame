@@ -6,7 +6,7 @@
 offsets = PackedFloat32Array(0, 0.223618, 1)
 colors = PackedColorArray(0, 1, 0.466667, 0, 0.0275, 1, 0.481225, 1, 0.0666667, 1, 0.501961, 1)
 
-[node name="Bullet" type="Node2D"]
+[node name="Bullet" type="Node2D" groups=["Bullet"]]
 script = ExtResource("1_bdof5")
 
 [node name="Shape" type="Polygon2D" parent="."]

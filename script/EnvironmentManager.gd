@@ -12,7 +12,7 @@ var screenSize = GlobalLoad.screenSize
 
 # The distance OUTSIDE the screen that each meteor will spawn, so they cannot
 # be seen spawning in
-var meteorGraceDist = 121 # 120px is the max meteor size
+@onready var meteorGraceDist = GlobalLoad.meteorGraceDist # 120px is the max meteor size
 
 # Called every frameww'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -20,6 +20,7 @@ func _process(_delta):
 
 # Called by the timer every second and a bit
 func tryCreateMeteor():
+	return
 	if $Meteors.get_child_count() < 10: # If there are less than 10 meteors on the screen right now
 		createMeteor()
 

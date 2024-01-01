@@ -11,15 +11,13 @@ point_count = 4
 curve = SubResource("Curve_bq5aw")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_5d1od"]
+particle_flag_disable_z = true
 emission_shape = 3
 emission_box_extents = Vector3(10, 10, 1)
-particle_flag_disable_z = true
 spread = 180.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 40.0
 initial_velocity_max = 100.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 damping_min = 38.68
 damping_max = 38.68
 scale_min = 5.0
@@ -34,22 +32,20 @@ colors = PackedColorArray(0.101961, 1, 0, 0.34902, 1, 1, 1, 0)
 gradient = SubResource("Gradient_3dgof")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ejobn"]
+particle_flag_disable_z = true
 emission_shape = 3
 emission_box_extents = Vector3(10, 10, 1)
-particle_flag_disable_z = true
 spread = 180.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 10.0
 initial_velocity_max = 50.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 damping_min = 8.02
 damping_max = 8.02
 scale_min = 4.0
 scale_max = 4.0
 color_ramp = SubResource("GradientTexture1D_rufmc")
 
-[node name="Powerup" type="Node2D"]
+[node name="Powerup" type="Node2D" groups=["Powerup"]]
 script = ExtResource("1_f7ko4")
 
 [node name="CollisionArea" type="Area2D" parent="."]

@@ -7,6 +7,5 @@ func _process(_delta):
 func updateLivesIndicator(newLifeCount):
 	$PlayerStuff/LivesIndicator.updateLives(newLifeCount)
 
-func shakeCamera(magnitude, shakeAmount=5):
-	pass
+func shakeCamera(magnitude, shakeAmount=500):
 	$WorldCamera.addTrauma(magnitude, shakeAmount)

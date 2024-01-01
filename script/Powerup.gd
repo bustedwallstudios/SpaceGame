@@ -1,5 +1,7 @@
 extends Node2D
 
+const type = "Powerup"
+
 # The type of powerup that it is.
 # 0 is rapidfire
 var powerupType = 0

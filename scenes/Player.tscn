@@ -18,12 +18,10 @@ gradient = SubResource("Gradient_2hmt3")
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_raagi"]
 particle_flag_disable_z = true
 spread = 180.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_max = 80.0
 angular_velocity_min = -500.0
 angular_velocity_max = 500.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 scale_min = 6.0
 scale_max = 9.0
 color_ramp = SubResource("GradientTexture1D_caks4")
@@ -40,18 +38,16 @@ gradient = SubResource("Gradient_h82yu")
 particle_flag_disable_z = true
 direction = Vector3(0, -1, 0)
 spread = 26.32
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 36.17
 initial_velocity_max = 151.76
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 linear_accel_min = -100.0
 scale_min = 3.0
 scale_max = 3.0
 color = Color(0.0784314, 1, 0, 1)
 color_ramp = SubResource("GradientTexture1D_3nwom")
 
-[node name="Player" type="Node2D"]
+[node name="Player" type="Node2D" groups=["Player"]]
 z_index = 10
 script = ExtResource("1_xw3nr")
 BulletScene = ExtResource("2_eaplv")
@@ -144,10 +140,11 @@ autoplay = true
 
 [node name="ShootAudio" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("4_kp4u1")
-volume_db = -11.86
+volume_db = -20.0
 
 [node name="DieAudio" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("5_ior5i")
+volume_db = -20.0
 pitch_scale = 0.6
 
 [node name="ShootAgainTimer" type="Timer" parent="."]

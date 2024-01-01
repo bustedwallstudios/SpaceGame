@@ -1,6 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://chhj2mw6gud4l"]
 
 [ext_resource type="Script" path="res://script/Meteor.gd" id="1_rmosa"]
+[ext_resource type="Curve" uid="uid://caxngvq7llf7k" path="res://scenes/resources/meteorCrackLineWC.tres" id="3_ecsa0"]
 [ext_resource type="AudioStream" uid="uid://88s8xma1nlrl" path="res://assets/audio/explosion.wav" id="3_snarl"]
 
 [sub_resource type="Curve" id="Curve_2j8nr"]
@@ -11,27 +12,21 @@ point_count = 2
 curve = SubResource("Curve_2j8nr")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_df0xg"]
+particle_flag_disable_z = true
 emission_shape = 1
 emission_sphere_radius = 20.0
-particle_flag_disable_z = true
 spread = 180.0
-gravity = Vector3(0, 0, 0)
 initial_velocity_min = 14.09
 initial_velocity_max = 14.09
 angular_velocity_min = -500.0
 angular_velocity_max = 500.0
-orbit_velocity_min = 0.0
-orbit_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
 scale_min = 5.0
 scale_max = 10.0
 scale_curve = SubResource("CurveTexture_qgxne")
 color = Color(0.560784, 0.560784, 0.560784, 1)
 
-[sub_resource type="Curve" id="Curve_jbror"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 2
-
-[node name="Meteor" type="Node2D"]
+[node name="Meteor" type="Node2D" groups=["Meteor"]]
 script = ExtResource("1_rmosa")
 
 [node name="CollisionArea" type="Area2D" parent="."]
@@ -51,6 +46,7 @@ polygon = PackedVector2Array(0, -5, 5, 0, 0, 5, -5, 0)
 
 [node name="DestroyedAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_snarl")
+volume_db = -20.0
 pitch_scale = 1.53
 
 [node name="DestroyParticles" type="GPUParticles2D" parent="."]
@@ -65,8 +61,20 @@ explosiveness = 1.0
 
 [node name="CrackLine" type="Line2D" parent="Cracks"]
 points = PackedVector2Array(0, 0, 3, -5, -1, -12)
-width = 4.0
-width_curve = SubResource("Curve_jbror")
+width = 2.5
+width_curve = ExtResource("3_ecsa0")
+default_color = Color(0.12549, 0.12549, 0.12549, 1)
+
+[node name="CrackLine2" type="Line2D" parent="Cracks"]
+points = PackedVector2Array(0, 0, -8, -7, -7, -18)
+width = 2.5
+width_curve = ExtResource("3_ecsa0")
+default_color = Color(0.12549, 0.12549, 0.12549, 1)
+
+[node name="CrackLine3" type="Line2D" parent="Cracks"]
+points = PackedVector2Array(0, 0, 6, 5, -1, 10)
+width = 2.5
+width_curve = ExtResource("3_ecsa0")
 default_color = Color(0.12549, 0.12549, 0.12549, 1)
 
 [connection signal="area_entered" from="CollisionArea" to="." method="collision"]

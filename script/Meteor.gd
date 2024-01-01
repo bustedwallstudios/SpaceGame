@@ -1,32 +1,40 @@
 extends Node2D
 
+const type:String = "Meteor"
+
 var screenSize = GlobalLoad.screenSize
 
 @export var healthMultiplier = 1
 
-@onready var graceDist = self.get_parent().get_parent().meteorGraceDist
+@onready var graceDist = GlobalLoad.meteorGraceDist
 
 var amountToRotate:float # Randomly rotate a little bit
 var directionToMove:Vector2 # Set by parent
 var thisMeteorSpeed = randf_range(0.25, 2)
 
-var avgRadiusOfThisMeteor:float # Set in the generateMeteorShape() function
-var health:float # Set in the same place as the size
-var customSize = -1 # Set by whatever creates this meteor
+# Set in the generateMeteorShape() function
+var avgRadiusOfThisMeteor:float
+var maxHealth:float
+var health:float
+
+# Set by whatever creates this meteor, in case it wants a custom size
+var customSize = -1
 
 var destroyed:bool = false # Set true when shot
 var shouldDespawn:bool = false
 
 # Whether or not this meteor should have a powerup crystal thing on it
-var hasPowerup = randf() < 0.1
+var thisMeteorHasPowerup = randf() < 0.1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	clearCracks()
 	amountToRotate = randf_range(-1.5, 1.5)
 	
 	# Generate the polygon for the meteor's collision and shape
 	var shapePolygon = generateMeteorShape()
 	
+	maxHealth = avgRadiusOfThisMeteor
 	health = avgRadiusOfThisMeteor
 	
 	$Shape.polygon = shapePolygon
@@ -37,10 +45,16 @@ func _ready():
 	$Shape.color *= 1 - randf()*cRand
 	$Shape.color.a = 1 # Set the alpha back to 1.
 	
-	if hasPowerup:
+	if thisMeteorHasPowerup:
 		$Shape/Crystal.show()
 		$Shape/Crystal.position = Vector2(randf_range(-20, 20), randf_range(-20, 20))
 		$Shape/Crystal.rotation = randf_range(0, TAU)
+
+# There are no cracks when the meteor comes into being
+func clearCracks():
+	$Cracks/CrackLine.clear_points()
+	$Cracks/CrackLine2.clear_points()
+	$Cracks/CrackLine3.clear_points()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -115,24 +129,22 @@ func collision(area):
 	# The object that was collided with (a bullet, meteor, player, etc)
 	var object = area.get_parent()
 	
-	if areaIs(area, "Bullet") and not self.destroyed:
+	if GlobalLoad.inGroup(area, "Bullet") and not self.destroyed:
 		hit(object.damage)
 	
-	elif areaIs(area, "Mine") and not self.destroyed:
+	elif GlobalLoad.inGroup(area, "Mine") and not self.destroyed:
 		# If the mine has exploded, then it means that the meteor is touching
 		# the explosion
 		if object.hasDetonated:
 			var distanceToMine = (object.position - self.position).length()
 			
-			hit(500/distanceToMine)
-
-# If the area that is passed in contains the string, it is that thing. A little messy.
-func areaIs(areaNode, testString):
-	return areaNode.get_parent().name.count(testString) > 0
+			var mineDamage = distanceToMine/2
+			
+			hit(mineDamage)
 
 # Called when damaged by something
 func hit(damage:float):
-	if hasPowerup:
+	if thisMeteorHasPowerup:
 		GlobalLoad.score += 3
 	else:
 		GlobalLoad.score += 1
@@ -146,7 +158,13 @@ func hit(damage:float):
 		breakMeteor()
 
 func crack():
-	$Cracks/CrackLine.add_point()
+	var crackCount = 3
+	
+	# For each of the cracks (there are 3)
+#	for i in range(0, crackCount):
+#		var crackAngle = (360.0/crackCount) * i
+#
+#		var crackLength = self.health
 
 func breakMeteor():
 	# If the meteor is big enough, break apart into smaller ones
@@ -162,7 +180,7 @@ func breakMeteor():
 
 func destroyThisMeteor():
 	# If the meteor has a powerup crystal thing on it, then create one when it disappears
-	if hasPowerup:
+	if thisMeteorHasPowerup:
 		self.get_parent().get_parent().spawnPowerupAt(self.position)
 	
 	# Disable collision, hide the sprite, tell the despawner that this meteor

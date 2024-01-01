@@ -7,14 +7,29 @@ extends Node2D
 
 @export var defaultShootDelay:float = 0.7
 
-# The player starts with three lives
-var currentLives = 3
+@export_enum("WASD", "Arrows") var controlsButtons
 
 @export var bodyIdx:int = 1
 @onready var bodyShapes = [
 	$CursorSprite,
 	$GunshipSprite
 ]
+
+const WASDControls:Dictionary = {
+	"left":   "turnLeft",
+	"right":  "turnRight",
+	"thrust": "thrust",
+	"shoot":  "shoot",
+}
+
+const ArrowsControls:Dictionary = {
+	"left":   "turnLeftArrows",
+	"right":  "turnRightArrows",
+	"thrust": "thrustArrows",
+	"shoot":  "shootArrows",
+}
+
+@onready var controlsToUse:Dictionary = WASDControls if controlsButtons == 0 else ArrowsControls
 
 # The locations at which the bullets appear (the ends of the cannons basically)
 var bulletSpawnLocations = [
@@ -23,16 +38,19 @@ var bulletSpawnLocations = [
 ]
 var bulletN:int = 0 # This is used to determine, via modulus, which cannon should fire this time.
 
+# The player starts with three lives
+var currentLives = 3
+
 # The correct values based on the current ship that is being used.
 @onready var bodySpriteNode = bodyShapes[bodyIdx]
-@onready var bulletSpawns = bulletSpawnLocations[bodyIdx]
+@onready var bulletSpawns   = bulletSpawnLocations[bodyIdx]
 
 var screenSize = GlobalLoad.screenSize
 
 var vel:Vector2 = Vector2(0, 0)
 
 var accel = 0.2
-var maxAllowedSpeed = 10
+var maxAllowedSpeed = INF#10_00000000000000
 var rotationSpeed = 3.5
 
 var drag = 0.015
@@ -41,13 +59,14 @@ var canShoot:bool = true # Set to true whenever the ShootAgainTimer expires
 
 var shouldThrust:bool = false
 
-var immune    = true # Starts true, until the deathFlicker() is complete.
+var immune    = true # Starts true, until the respawnFlicker() is complete.
 var currentlyDead = false # If this is false, don't allow the player to control the ship
 
 # If the player moved the mouse more recently than pressing A or D
 var lastMovedMouse = false
 
 func _ready():
+	print(self.controlsButtons)
 	defaultShootDelay /= bulletSpawnLocations[bodyIdx].size()
 	$ShootAgainTimer.wait_time = defaultShootDelay
 	
@@ -72,12 +91,11 @@ func _process(delta):
 	self.position += vel
 
 func doControls():
-	
-	if Input.is_action_pressed("turnLeft"):
+	if Input.is_action_pressed(controlsToUse.left):
 		lastMovedMouse = false
 		self.rotation_degrees -= rotationSpeed
 	
-	elif Input.is_action_pressed("turnRight"):
+	elif Input.is_action_pressed(controlsToUse.right):
 		lastMovedMouse = false
 		self.rotation_degrees += rotationSpeed
 	
@@ -105,7 +123,7 @@ func doControls():
 		# Rotate by the angle change amount
 		self.rotation += angleDelta
 	
-	if Input.is_action_pressed("thrust"):
+	if Input.is_action_pressed(controlsToUse.thrust):
 		shouldThrust = true
 	
 	else: # If the player is not thrusting, gradually slow down
@@ -114,7 +132,7 @@ func doControls():
 	
 	# If the player is trying to shoot, and the timer dictates that they can,
 	# shoot.
-	if Input.is_action_pressed("shoot") and canShoot:
+	if Input.is_action_pressed(controlsToUse.shoot) and canShoot:
 		canShoot = false
 		$ShootAgainTimer.start()
 		
@@ -133,7 +151,7 @@ func thrust():
 		$Audio/EngineAudio.playing = true
 	
 	# Quickly but gradually bring up the volume from -80dB when they start rocketing
-	$Audio/EngineAudio.volume_db = lerp($Audio/EngineAudio.volume_db, -12.0, 0.15)
+	$Audio/EngineAudio.volume_db = lerp($Audio/EngineAudio.volume_db, -20.0, 0.15) # Used to be lerping towards -12.0
 
 func dontThrust():
 	# Do not slow the player down due to drag if they are dead, because then
@@ -145,7 +163,7 @@ func dontThrust():
 	$EngineParticles.emitting = false
 	
 	# Quickly but gradually put the volume to 0 when they stop rocketing
-	$Audio/EngineAudio.volume_db = lerp($Audio/EngineAudio.volume_db, -80.0, 0.025)
+	$Audio/EngineAudio.volume_db = lerp($Audio/EngineAudio.volume_db, -80.0, 0.025) # 0.025
 
 # Shoots whatever bullets from whatever placed
 func shoot():
@@ -159,9 +177,16 @@ func shoot():
 	thisBullet.position = self.position + turretPos
 	thisBullet.velAdjustment = self.vel
 	
+	# Used by the bullet to keep track of who to kill and whatnot
+	thisBullet.bulletOwner = self
+	
 	# The gunship has smaller bullets
-	if bodyIdx == 1:
-		thisBullet.scale *= 0.75
+	match bodyIdx:
+		0:
+			thisBullet.damage = 100
+		1:
+			thisBullet.scale *= 0.75
+			thisBullet.damage = 50
 	
 	self.get_parent().add_child(thisBullet)
 	
@@ -201,22 +226,30 @@ func canShootAgain():
 
 func collision(area):
 	
+	print("Collision with ", area.get_parent().name)
+	
 	# Don't handle any collisions if the player is dead
 	if self.currentlyDead:
 		return
 	
 	var object = area.get_parent()
 	
-	if areaIs(area, "Meteor"):
+	if GlobalLoad.inGroup(area, "Meteor"):
 		if immune: return
 		die()
 	
-	elif areaIs(area, "Powerup"):
+	elif GlobalLoad.inGroup(area, "Powerup"):
 		powerup(object.powerupType)
 	
-	elif areaIs(area, "Mine"):
+	elif GlobalLoad.inGroup(area, "Mine"):
 		if immune: return
 		if object.hasDetonated:
+			die()
+	
+	elif GlobalLoad.inGroup(area, "Bullet"):
+		# If the bullet that collided was not shot by this ship, then it was killed
+		# by some other enemy ship.
+		if not area.get_parent().bulletOwner == self:
 			die()
 
 func powerup(type):
@@ -314,6 +347,7 @@ func respawnFlicker():
 		await get_tree().create_timer(flickerDelay).timeout
 		flickerDelay -= 0.005
 	
+	print("No longer immune")
 	immune = false
 
 func resetPowerups():
@@ -322,7 +356,3 @@ func resetPowerups():
 	
 	# Reset the effect of the shooting powerup
 	$ShootAgainTimer.wait_time = defaultShootDelay
-
-# If the area that is passed in contains the string, it is that thing. A little messy.
-func areaIs(areaNode, testString):
-	return areaNode.get_parent().name.count(testString) > 0
